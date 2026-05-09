@@ -12,7 +12,7 @@
 use anyhow::{Context, Result};
 use arboard::Clipboard;
 use clap::Parser;
-use lc::settings::{default_config_path, ConfigFile};
+use lc::settings::{ConfigFile, default_config_path};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -102,8 +102,8 @@ fn main() -> Result<()> {
     // ------------------------------------------------------------------
     // 4. Clean the link
     // ------------------------------------------------------------------
-    let cleaned = lc::clean_link(&cli.url, &settings)
-        .map_err(|e| anyhow::anyhow!("Failed to clean URL: {} - {}", cli.url, e))?;
+    let cleaned =
+        lc::clean_link(&cli.url, &settings).map_err(|e| anyhow::anyhow!("Failed to clean URL: {} - {}", cli.url, e))?;
 
     if cli.verbose {
         eprintln!("New link:    {}", cleaned);

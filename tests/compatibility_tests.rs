@@ -19,11 +19,7 @@ fn run_case(url: &str, settings: &Settings, expected: &str) {
 #[test]
 fn test_basic_cleaning() {
     let s = Settings::default();
-    run_case(
-        "https://example.com?utm_source=test",
-        &s,
-        "https://example.com/",
-    );
+    run_case("https://example.com?utm_source=test", &s, "https://example.com/");
     run_case(
         "https://example.com?utm_source=test&utm_medium=email",
         &s,

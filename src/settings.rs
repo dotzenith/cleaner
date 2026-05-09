@@ -35,10 +35,9 @@ impl ConfigFile {
         if !path.exists() {
             return Ok(Self::default());
         }
-        let contents = fs::read_to_string(path)
-            .with_context(|| format!("Failed to read config file at {}", path.display()))?;
-        toml::from_str(&contents)
-            .with_context(|| format!("Failed to parse config file at {}", path.display()))
+        let contents =
+            fs::read_to_string(path).with_context(|| format!("Failed to read config file at {}", path.display()))?;
+        toml::from_str(&contents).with_context(|| format!("Failed to parse config file at {}", path.display()))
     }
 
     /// Convert the on-disk config into the runtime `Settings` struct.

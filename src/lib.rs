@@ -58,9 +58,7 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             Some("l.facebook.com") => get_param(&old_link, "u"),
             // href.li puts the target URL in the query string without a key
             Some("href.li") => old_link.query().map(|q| q.to_string()),
-            Some("www.google.com") if old_link.path() == "/url" => {
-                get_param(&old_link, "url")
-            }
+            Some("www.google.com") if old_link.path() == "/url" => get_param(&old_link, "url"),
             Some("cts.businesswire.com") => get_param(&old_link, "url"),
             _ => None,
         };
@@ -121,8 +119,7 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             // greedy regex over the whole URL, which can capture the
             // wrong group when the URL contains multiple `v=` matches.
             if let Some(v) = params.get("v") {
-                new_link = Url::parse(&format!("https://youtu.be/{}", v))
-                    .map_err(|e| e.to_string())?;
+                new_link = Url::parse(&format!("https://youtu.be/{}", v)).map_err(|e| e.to_string())?;
             }
         } else if let Some(v) = params.get("v") {
             new_link.query_pairs_mut().append_pair("v", v);
@@ -222,19 +219,13 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             .map_err(|e| format!("failed to set host: {}", e))?;
     }
 
-    if settings.fix_bluesky
-        && new_host == "bsky.app"
-        && old_link.path().contains("/post/")
-    {
+    if settings.fix_bluesky && new_host == "bsky.app" && old_link.path().contains("/post/") {
         new_link
             .set_host(Some("fxbsky.app"))
             .map_err(|e| format!("failed to set host: {}", e))?;
     }
 
-    if settings.walmart_shorten
-        && new_host == "www.walmart.com"
-        && old_link.path().contains("/ip/")
-    {
+    if settings.walmart_shorten && new_host == "www.walmart.com" && old_link.path().contains("/ip/") {
         let re = Regex::new(r"/ip/.*/(\d+)").unwrap();
         if let Some(caps) = re.captures(old_link.path()) {
             if let Some(pid) = caps.get(1) {
@@ -272,9 +263,7 @@ fn parse_or_extract_url(link: &str) -> Result<Url, String> {
 
 /// Helper: get a single query parameter by key.
 fn get_param(url: &Url, key: &str) -> Option<String> {
-    url.query_pairs()
-        .find(|(k, _)| k == key)
-        .map(|(_, v)| v.into_owned())
+    url.query_pairs().find(|(k, _)| k == key).map(|(_, v)| v.into_owned())
 }
 
 /// Returns true iff `host` is `youtube.com` or a subdomain of it.
