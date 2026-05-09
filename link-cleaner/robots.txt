@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /bulk/*
+Disallow: /history/*
+Disallow: /settings/*
