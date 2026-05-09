@@ -48,22 +48,28 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
     let mut old_link = parse_or_extract_url(link)?;
 
     // ------------------------------------------------------------------
-    // 1. Fix known link shorteners / redirect services
+    // 1. Fix known link shorteners / redirect services.
+    //    All redirect-unwrapping happens here so that downstream rules
+    //    operate on the final destination URL. We loop with a depth
+    //    bound to handle (rare) nested redirects.
     // ------------------------------------------------------------------
-    if old_link.host_str() == Some("l.facebook.com") {
-        if let Some(u) = get_param(&old_link, "u") {
-            old_link = Url::parse(&u).map_err(|e| e.to_string())?;
-        }
-    } else if old_link.host_str() == Some("href.li") {
-        // href.li puts the target URL in the query string without a key
-        if let Some(q) = old_link.query() {
-            old_link = Url::parse(q).map_err(|e| e.to_string())?;
-        }
-    } else if old_link.host_str() == Some("www.google.com") {
-        if old_link.path() == "/url" {
-            if let Some(url) = get_param(&old_link, "url") {
-                old_link = Url::parse(&url).map_err(|e| e.to_string())?;
+    for _ in 0..5 {
+        let unwrapped: Option<String> = match old_link.host_str() {
+            Some("l.facebook.com") => get_param(&old_link, "u"),
+            // href.li puts the target URL in the query string without a key
+            Some("href.li") => old_link.query().map(|q| q.to_string()),
+            Some("www.google.com") if old_link.path() == "/url" => {
+                get_param(&old_link, "url")
             }
+            Some("cts.businesswire.com") => get_param(&old_link, "url"),
+            _ => None,
+        };
+        match unwrapped {
+            Some(u) => match Url::parse(&u) {
+                Ok(parsed) => old_link = parsed,
+                Err(_) => break,
+            },
+            None => break,
         }
     }
 
@@ -78,11 +84,13 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
     let host = old_link.host_str().unwrap_or("").to_lowercase();
 
     // ------------------------------------------------------------------
-    // 3. Build the base cleaned link (origin + pathname only)
+    // 3. Build the base cleaned link by cloning the source and stripping
+    //    only the query and fragment. This preserves scheme, userinfo,
+    //    host, port, and path-encoding exactly.
     // ------------------------------------------------------------------
-    let origin = format!("{}://{}", old_link.scheme(), old_link.host_str().unwrap_or(""));
-    let mut new_link = Url::parse(&format!("{}{}", origin, old_link.path()))
-        .map_err(|e| e.to_string())?;
+    let mut new_link = old_link.clone();
+    new_link.set_query(None);
+    new_link.set_fragment(None);
 
     // ------------------------------------------------------------------
     // 4. Always-preserved parameters (before optional transforms)
@@ -104,23 +112,20 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
     // ------------------------------------------------------------------
     // 5. YouTube handling (must be checked before generic preserving)
     // ------------------------------------------------------------------
-    let is_youtube = host.ends_with("youtube.com");
+    let is_youtube = is_youtube_host(&host);
     let is_youtu_be = host == "youtu.be";
 
     if is_youtube && params.contains_key("v") {
         if settings.youtube_shorten {
-            let re = Regex::new(r"^.*(youtu\.be/|embed/|shorts/|\?v=|\&v=)(?P<videoID>[^#&?]*).*")
-                .unwrap();
-            if let Some(caps) = re.captures(old_link.as_str()) {
-                if let Some(video_id) = caps.name("videoID") {
-                    new_link = Url::parse(&format!("https://youtu.be/{}", video_id.as_str()))
-                        .map_err(|e| e.to_string())?;
-                }
-            }
-        } else {
+            // Use the canonical `v` parameter directly rather than a
+            // greedy regex over the whole URL, which can capture the
+            // wrong group when the URL contains multiple `v=` matches.
             if let Some(v) = params.get("v") {
-                new_link.query_pairs_mut().append_pair("v", v);
+                new_link = Url::parse(&format!("https://youtu.be/{}", v))
+                    .map_err(|e| e.to_string())?;
             }
+        } else if let Some(v) = params.get("v") {
+            new_link.query_pairs_mut().append_pair("v", v);
         }
         if let Some(t) = params.get("t") {
             new_link.query_pairs_mut().append_pair("t", t);
@@ -147,16 +152,16 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
         }
     }
 
-    if host.contains("amazon")
+    if is_amazon_host(&host)
         && (old_link.path().contains("/dp/")
             || old_link.path().contains("/d/")
             || old_link.path().contains("/product/"))
     {
-        // Strip www. subdomain for Amazon
-        let clean_host = new_link.host_str().unwrap_or("").replace("www.", "");
-        if clean_host != new_link.host_str().unwrap_or("") {
+        // Strip leading "www." from Amazon hosts (prefix only).
+        let current_host = new_link.host_str().unwrap_or("").to_string();
+        if let Some(stripped) = current_host.strip_prefix("www.") {
             new_link
-                .set_host(Some(&clean_host))
+                .set_host(Some(stripped))
                 .map_err(|e| format!("failed to set host: {}", e))?;
         }
 
@@ -194,12 +199,6 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             if let Some(v) = params.get(key) {
                 new_link.query_pairs_mut().append_pair(key, v);
             }
-        }
-    }
-
-    if host == "cts.businesswire.com" {
-        if let Some(url) = params.get("url") {
-            new_link = Url::parse(url).map_err(|e| e.to_string())?;
         }
     }
 
@@ -247,7 +246,7 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
     // ------------------------------------------------------------------
     // 8. Amazon affiliate tracking ID
     // ------------------------------------------------------------------
-    if new_link.host_str().unwrap_or("").contains("amazon") {
+    if is_amazon_host(&new_link.host_str().unwrap_or("").to_lowercase()) {
         if let Some(ref tag) = settings.amazon_tracking_id {
             new_link.query_pairs_mut().append_pair("tag", tag);
         }
@@ -276,4 +275,32 @@ fn get_param(url: &Url, key: &str) -> Option<String> {
     url.query_pairs()
         .find(|(k, _)| k == key)
         .map(|(_, v)| v.into_owned())
+}
+
+/// Returns true iff `host` is `youtube.com` or a subdomain of it.
+/// Rejects look-alikes such as `evil-youtube.com`.
+fn is_youtube_host(host: &str) -> bool {
+    host == "youtube.com" || host.ends_with(".youtube.com")
+}
+
+/// Returns true iff `host` looks like an Amazon-owned domain
+/// (`amazon.{tld}`, optionally with a subdomain such as `www.` or `smile.`).
+///
+/// Matches the `amazon` label exactly and requires a short, alphabetic
+/// TLD-like suffix (1–3 labels, each ≤ 4 chars). This rejects look-alikes
+/// such as `myamazon.com`, `amazon.evil.com`, and `notamazon.io` while
+/// accepting all legitimate Amazon TLDs (`amazon.com`, `amazon.co.uk`,
+/// `amazon.de`, `amazon.com.br`, etc.).
+fn is_amazon_host(host: &str) -> bool {
+    let labels: Vec<&str> = host.split('.').collect();
+    let Some(pos) = labels.iter().position(|&l| l == "amazon") else {
+        return false;
+    };
+    let suffix = &labels[pos + 1..];
+    if suffix.is_empty() || suffix.len() > 3 {
+        return false;
+    }
+    suffix
+        .iter()
+        .all(|l| (1..=4).contains(&l.len()) && l.chars().all(|c| c.is_ascii_alphabetic()))
 }
