@@ -14,8 +14,25 @@ The binary is at `target/release/lc`.
 
 ## Usage
 
-```sh
-lc [OPTIONS] <URL>
+```
+Clean tracking parameters and junk from URLs.
+
+Usage: lc [OPTIONS] <URL>
+
+Arguments:
+  <URL>  The URL to clean
+
+Options:
+      --youtube-short    Shorten YouTube video links to youtu.be format
+      --walmart-short    Shorten Walmart product links to walmart.com/ip/{id} format
+      --fix-twitter      Replace twitter.com / x.com with fxtwitter.com
+      --fix-bluesky      Replace bsky.app with fxbsky.app
+      --amazon-tag <ID>  Add an Amazon affiliate tracking ID to Amazon links
+      --clipboard        Copy the cleaned URL to the system clipboard
+      --verbose          Print verbose debugging output (old link, settings, new link)
+      --config <PATH>    Path to a custom configuration file
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ### Examples
@@ -35,21 +52,6 @@ lc "https://example.com?foo=bar" --clipboard
 # Use a custom config file
 lc "https://example.com" --config /path/to/config.toml
 ```
-
-### Options
-
-| Flag              | Description                                         |
-|-------------------|-----------------------------------------------------|
-| `--youtube-short` | Shorten YouTube video links to `youtu.be`           |
-| `--walmart-short` | Shorten Walmart product links to `walmart.com/ip/{id}` |
-| `--fix-twitter`   | Replace `twitter.com` / `x.com` with `fxtwitter.com` |
-| `--fix-bluesky`   | Replace `bsky.app` with `fxbsky.app`                |
-| `--amazon-tag <ID>` | Append Amazon affiliate tracking ID                 |
-| `--clipboard`     | Copy the cleaned URL to the system clipboard        |
-| `--verbose`       | Print old link, settings, new link to stderr        |
-| `--config`        | Path to a custom configuration file                 |
-| `--version`       | Print version                                       |
-| `-h`, `--help`    | Print help                                          |
 
 ## Configuration
 
