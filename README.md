@@ -8,9 +8,24 @@ This is not like any of my other work where I've hand-written (bad) code, so don
 
 ## Build
 
+#### Shell
 ```sh
-git clone https://github.com/dotzenith/cleaner
-cd cleaner
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/dotzenith/healer/releases/latest/download/healer-installer.sh | sh
+```
+
+#### Powershell
+```sh
+powershell -ExecutionPolicy ByPass -c "irm https://github.com/dotzenith/healer/releases/latest/download/healer-installer.ps1 | iex"
+```
+
+#### Binaries
+Pre-Compiled binaries for linux, mac, and windows are available in [Releases](https://github.com/dotzenith/healer/releases)
+
+
+#### Source
+```sh
+git clone https://github.com/dotzenith/healer
+cd healer
 cargo build --release
 ./target/release/hl
 ```
