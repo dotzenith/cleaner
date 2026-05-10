@@ -56,7 +56,7 @@ impl ConfigFile {
 }
 
 /// Return the default path for the configuration file:
-/// Always `~/.config/lc/config.toml` regardless of platform.
+/// Always `~/.config/hl/config.toml` regardless of platform.
 pub fn default_config_path() -> Option<PathBuf> {
-    dirs::home_dir().map(|p| p.join(".config").join("lc").join("config.toml"))
+    dirs::home_dir().map(|p| p.join(".config").join("hl").join("config.toml"))
 }

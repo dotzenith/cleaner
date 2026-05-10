@@ -1,5 +1,5 @@
-// lc - A CLI tool that removes tracking parameters and junk from URLs.
-// Copyright (C) 2024  lc contributors
+// healer - A CLI tool that removes tracking parameters and junk from URLs.
+// Copyright (C) 2024 healer contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
-# lc
+# Healer
 
-A CLI tool that removes tracking parameters and junk from URLs. Based on [Link Cleaner](https://github.com/corbindavenport/link-cleaner) by Corbin Davenport.
+A CLI tool to remove tracking parameters and junk from URLs. Based on [Link Cleaner](https://github.com/corbindavenport/link-cleaner).
 
 I liked the original project but it did not have a CLI that I could just use with my hotkey daemon.
 So I used Kimi 2.6 to rewrite this as a rust CLI tool, so keep that in mind if you try to use this yourself.
@@ -12,16 +12,15 @@ This is not like any of my other work where I've hand-written (bad) code, so don
 git clone https://github.com/dotzenith/cleaner
 cd cleaner
 cargo build --release
+./target/release/hl
 ```
-
-The binary is at `target/release/lc`.
 
 ## Usage
 
 ```
 Clean tracking parameters and junk from URLs.
 
-Usage: lc [OPTIONS] <URL>
+Usage: hl [OPTIONS] <URL>
 
 Arguments:
   <URL>  The URL to clean
@@ -41,25 +40,26 @@ Options:
 
 ### Examples
 
+#### Generic Link
 ```sh
-# Basic cleaning
-lc "https://example.com?utm_source=test"
+hl "https://example.com?utm_source=test"
 # → https://example.com/
+```
 
-# Shorten YouTube links
-lc "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --youtube-short
+#### Shorten YouTube links
+```sh
+hl "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --youtube-short
 # → https://youtu.be/dQw4w9WgXcQ
+```
 
-# Copy result to clipboard
-lc "https://example.com?foo=bar" --clipboard
-
-# Use a custom config file
-lc "https://example.com" --config /path/to/config.toml
+#### Copy straight to clipboard
+```sh
+hl "https://example.com?foo=bar" --clipboard
 ```
 
 ## Configuration
 
-`lc` reads an optional config file at `~/.config/lc/config.toml`. CLI flags override config values.
+`hl` reads an optional config file at `~/.config/hl/config.toml`. CLI flags override config values.
 
 ### Example `config.toml`
 

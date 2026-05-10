@@ -330,6 +330,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
+name = "healer"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "arboard",
+ "clap",
+ "dirs",
+ "regex",
+ "serde",
+ "toml",
+ "url",
+]
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -467,20 +481,6 @@ name = "is_terminal_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
-
-[[package]]
-name = "lc"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "arboard",
- "clap",
- "dirs",
- "regex",
- "serde",
- "toml",
- "url",
-]
 
 [[package]]
 name = "libc"

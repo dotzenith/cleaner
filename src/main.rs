@@ -1,5 +1,5 @@
-// lc - A CLI tool that removes tracking parameters and junk from URLs.
-// Copyright (C) 2024  lc contributors
+// healer - A CLI tool that removes tracking parameters and junk from URLs.
+// Copyright (C) 2024 healer contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,11 +12,11 @@
 use anyhow::{Context, Result};
 use arboard::Clipboard;
 use clap::Parser;
-use lc::settings::{ConfigFile, default_config_path};
+use healer::settings::{ConfigFile, default_config_path};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = "lc")]
+#[command(name = "hl")]
 #[command(about = "Clean tracking parameters and junk from URLs.")]
 #[command(version)]
 struct Cli {
@@ -103,7 +103,7 @@ fn main() -> Result<()> {
     // 4. Clean the link
     // ------------------------------------------------------------------
     let cleaned =
-        lc::clean_link(&cli.url, &settings).map_err(|e| anyhow::anyhow!("Failed to clean URL: {} - {}", cli.url, e))?;
+        healer::clean_link(&cli.url, &settings).map_err(|e| anyhow::anyhow!("Failed to clean URL: {} - {}", cli.url, e))?;
 
     if cli.verbose {
         eprintln!("New link:    {}", cleaned);

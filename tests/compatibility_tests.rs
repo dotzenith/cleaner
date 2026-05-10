@@ -5,10 +5,10 @@
 // Original project: Link Cleaner by Corbin Davenport (GPL-3.0)
 // https://github.com/corbindavenport/link-cleaner
 
-use lc::Settings;
+use healer::Settings;
 
 fn run_case(url: &str, settings: &Settings, expected: &str) {
-    let result = lc::clean_link(url, settings).unwrap();
+    let result = healer::clean_link(url, settings).unwrap();
     assert_eq!(
         result, expected,
         "Mismatch for URL: {}\nExpected: {}\nGot: {}",
