@@ -27,10 +27,6 @@ struct Cli {
     #[arg(long)]
     youtube_short: bool,
 
-    /// Shorten Walmart product links to walmart.com/ip/{id} format.
-    #[arg(long)]
-    walmart_short: bool,
-
     /// Replace twitter.com / x.com with fxtwitter.com.
     #[arg(long)]
     fix_twitter: bool,
@@ -38,10 +34,6 @@ struct Cli {
     /// Replace bsky.app with fxbsky.app.
     #[arg(long)]
     fix_bluesky: bool,
-
-    /// Add an Amazon affiliate tracking ID to Amazon links.
-    #[arg(long, value_name = "ID")]
-    amazon_tag: Option<String>,
 
     /// Copy the cleaned URL to the system clipboard.
     #[arg(long)]
@@ -77,17 +69,11 @@ fn main() -> Result<()> {
     if cli.youtube_short {
         settings.youtube_shorten = true;
     }
-    if cli.walmart_short {
-        settings.walmart_shorten = true;
-    }
     if cli.fix_twitter {
         settings.fix_twitter = true;
     }
     if cli.fix_bluesky {
         settings.fix_bluesky = true;
-    }
-    if cli.amazon_tag.is_some() {
-        settings.amazon_tracking_id = cli.amazon_tag;
     }
 
     // ------------------------------------------------------------------

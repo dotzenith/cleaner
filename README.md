@@ -42,10 +42,8 @@ Arguments:
 
 Options:
       --youtube-short    Shorten YouTube video links to youtu.be format
-      --walmart-short    Shorten Walmart product links to walmart.com/ip/{id} format
       --fix-twitter      Replace twitter.com / x.com with fxtwitter.com
       --fix-bluesky      Replace bsky.app with fxbsky.app
-      --amazon-tag <ID>  Add an Amazon affiliate tracking ID to Amazon links
       --clipboard        Copy the cleaned URL to the system clipboard
       --verbose          Print verbose debugging output (old link, settings, new link)
       --config <PATH>    Path to a custom configuration file
@@ -80,10 +78,8 @@ hl "https://example.com?foo=bar" --clipboard
 
 ```toml
 youtube_shorten = true
-walmart_shorten = true
 fix_twitter = false
 fix_bluesky = false
-amazon_tracking_id = "mytag-20"
 ```
 
 ## License

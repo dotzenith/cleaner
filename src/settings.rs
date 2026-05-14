@@ -11,10 +11,6 @@ pub struct ConfigFile {
     #[serde(default)]
     pub youtube_shorten: Option<bool>,
 
-    /// Shorten Walmart product links to `walmart.com/ip/{id}`.
-    #[serde(default)]
-    pub walmart_shorten: Option<bool>,
-
     /// Replace `twitter.com` / `x.com` with `fxtwitter.com`.
     #[serde(default)]
     pub fix_twitter: Option<bool>,
@@ -22,10 +18,6 @@ pub struct ConfigFile {
     /// Replace `bsky.app` with `fxbsky.app`.
     #[serde(default)]
     pub fix_bluesky: Option<bool>,
-
-    /// Amazon affiliate tracking ID appended to Amazon links.
-    #[serde(default)]
-    pub amazon_tracking_id: Option<String>,
 }
 
 impl ConfigFile {
@@ -47,10 +39,8 @@ impl ConfigFile {
     pub fn to_settings(&self) -> Settings {
         Settings {
             youtube_shorten: self.youtube_shorten.unwrap_or(false),
-            walmart_shorten: self.walmart_shorten.unwrap_or(false),
             fix_twitter: self.fix_twitter.unwrap_or(false),
             fix_bluesky: self.fix_bluesky.unwrap_or(false),
-            amazon_tracking_id: self.amazon_tracking_id.clone(),
         }
     }
 }

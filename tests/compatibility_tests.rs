@@ -270,31 +270,6 @@ fn test_bluesky_fix() {
     );
 }
 
-#[test]
-fn test_walmart_shorten() {
-    let s = Settings {
-        walmart_shorten: true,
-        ..Default::default()
-    };
-    run_case(
-        "https://www.walmart.com/ip/some-product-name/13376108763?foo=bar",
-        &s,
-        "https://www.walmart.com/ip/13376108763",
-    );
-}
-
-#[test]
-fn test_amazon_affiliate() {
-    let s = Settings {
-        amazon_tracking_id: Some("myaffiliate-20".to_string()),
-        ..Default::default()
-    };
-    run_case(
-        "https://www.amazon.com/dp/B08N5WRWNW?foo=bar",
-        &s,
-        "https://amazon.com/dp/B08N5WRWNW?tag=myaffiliate-20",
-    );
-}
 
 #[test]
 fn test_url_in_text() {

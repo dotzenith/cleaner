@@ -29,14 +29,10 @@ pub mod settings;
 pub struct Settings {
     /// Convert YouTube video links to the `youtu.be` short format.
     pub youtube_shorten: bool,
-    /// Shorten Walmart product links to `walmart.com/ip/{id}`.
-    pub walmart_shorten: bool,
     /// Replace `twitter.com` / `x.com` with `fxtwitter.com`.
     pub fix_twitter: bool,
     /// Replace `bsky.app` with `fxbsky.app`.
     pub fix_bluesky: bool,
-    /// Amazon affiliate tracking ID appended to Amazon links.
-    pub amazon_tracking_id: Option<String>,
 }
 
 /// Cleans a link according to the same rules as the JS Link Cleaner web app.
@@ -113,9 +109,6 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
 
     if is_youtube && params.contains_key("v") {
         if settings.youtube_shorten {
-            // Use the canonical `v` parameter directly rather than a
-            // greedy regex over the whole URL, which can capture the
-            // wrong group when the URL contains multiple `v=` matches.
             if let Some(v) = params.get("v") {
                 new_link = Url::parse(&format!("https://youtu.be/{}", v)).map_err(|e| e.to_string())?;
             }
@@ -151,7 +144,6 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             || old_link.path().contains("/d/")
             || old_link.path().contains("/product/"))
     {
-        // Strip leading "www." from Amazon hosts (prefix only).
         let current_host = new_link.host_str().unwrap_or("").to_string();
         if let Some(stripped) = current_host.strip_prefix("www.") {
             new_link
@@ -217,22 +209,6 @@ pub fn clean_link(link: &str, settings: &Settings) -> Result<String, String> {
             .set_host(Some("fxbsky.app"))
             .map_err(|e| format!("failed to set host: {}", e))?;
     }
-
-    if settings.walmart_shorten && new_host == "www.walmart.com" && old_link.path().contains("/ip/") {
-        let re = Regex::new(r"/ip/.*/(\d+)").unwrap();
-        if let Some(caps) = re.captures(old_link.path())
-            && let Some(pid) = caps.get(1) {
-                new_link.set_path(&format!("/ip/{}", pid.as_str()));
-            }
-    }
-
-    // ------------------------------------------------------------------
-    // 8. Amazon affiliate tracking ID
-    // ------------------------------------------------------------------
-    if is_amazon_host(&new_link.host_str().unwrap_or("").to_lowercase())
-        && let Some(ref tag) = settings.amazon_tracking_id {
-            new_link.query_pairs_mut().append_pair("tag", tag);
-        }
 
     Ok(new_link.to_string())
 }
