@@ -14,6 +14,8 @@ pub struct ConfigFile {
     #[serde(default)]
     pub fix_bluesky: Option<bool>,
     #[serde(default)]
+    pub fix_instagram: Option<bool>,
+    #[serde(default)]
     pub clipboard: Option<bool>,
 }
 
@@ -34,6 +36,7 @@ impl ConfigFile {
             youtube_shorten: self.youtube_shorten.unwrap_or(false),
             fix_twitter: self.fix_twitter.unwrap_or(false),
             fix_bluesky: self.fix_bluesky.unwrap_or(false),
+            fix_instagram: self.fix_instagram.unwrap_or(false),
         }
     }
 }

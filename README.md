@@ -41,9 +41,10 @@ Arguments:
   <URL>  The URL to clean
 
 Options:
-      --youtube-short    Shorten YouTube video links to youtu.be format
+      --youtube-shorten  Shorten YouTube video links to youtu.be format
       --fix-twitter      Replace twitter.com / x.com with fxtwitter.com
       --fix-bluesky      Replace bsky.app with fxbsky.app
+      --fix-instagram    Replace instagram.com with vxinstagram.com
       --clipboard        Copy the cleaned URL to the system clipboard
       --verbose          Print verbose debugging output (old link, settings, new link)
       --config <PATH>    Path to a custom configuration file
@@ -61,7 +62,7 @@ hl "https://example.com?utm_source=test"
 
 #### Shorten YouTube links
 ```sh
-hl "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --youtube-short
+hl "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --youtube-shorten
 # → https://youtu.be/dQw4w9WgXcQ
 ```
 
@@ -80,6 +81,7 @@ hl "https://example.com?foo=bar" --clipboard
 youtube_shorten = true
 fix_twitter = false
 fix_bluesky = false
+fix_instagram = false
 ```
 
 ## License

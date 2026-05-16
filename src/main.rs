@@ -14,7 +14,7 @@ struct Cli {
 
     /// Shorten YouTube video links to youtu.be format.
     #[arg(long)]
-    youtube_short: bool,
+    youtube_shorten: bool,
 
     /// Replace twitter.com / x.com with fxtwitter.com.
     #[arg(long)]
@@ -23,6 +23,10 @@ struct Cli {
     /// Replace bsky.app with fxbsky.app.
     #[arg(long)]
     fix_bluesky: bool,
+
+    /// Replace instagram.com with vxinstagram.com.
+    #[arg(long)]
+    fix_instagram: bool,
 
     /// Copy the cleaned URL to the system clipboard.
     #[arg(long)]
@@ -51,7 +55,7 @@ fn main() -> Result<()> {
 
     let use_clipboard = cli.clipboard || config.clipboard.unwrap_or(false);
 
-    if cli.youtube_short {
+    if cli.youtube_shorten {
         settings.youtube_shorten = true;
     }
     if cli.fix_twitter {
@@ -59,6 +63,9 @@ fn main() -> Result<()> {
     }
     if cli.fix_bluesky {
         settings.fix_bluesky = true;
+    }
+    if cli.fix_instagram {
+        settings.fix_instagram = true;
     }
 
     if cli.verbose {

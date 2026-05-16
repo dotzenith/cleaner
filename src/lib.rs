@@ -26,6 +26,8 @@ pub struct Settings {
     pub fix_twitter: bool,
     /// Replace `bsky.app` with `fxbsky.app`.
     pub fix_bluesky: bool,
+    /// Replace `instagram.com` with `vxinstagram.com`.
+    pub fix_instagram: bool,
 }
 
 /// Cleans a URL by removing tracking parameters and applying optional transforms.
@@ -195,6 +197,12 @@ pub fn clean_link(input: &str, settings: &Settings) -> Result<String> {
         cleaned
             .set_host(Some("fxbsky.app"))
             .context("failed to rewrite bluesky host")?;
+    }
+
+    if settings.fix_instagram && (cleaned_host == "instagram.com" || cleaned_host == "www.instagram.com") {
+        cleaned
+            .set_host(Some("vxinstagram.com"))
+            .context("failed to rewrite instagram host")?;
     }
 
     Ok(cleaned.to_string())
@@ -490,6 +498,24 @@ mod tests {
             "https://bsky.app/profile/did:plc:handle/post/12345?utm_source=test",
             &s,
             "https://fxbsky.app/profile/did:plc:handle/post/12345",
+        );
+    }
+
+    #[test]
+    fn instagram_fix() {
+        let s = Settings {
+            fix_instagram: true,
+            ..Default::default()
+        };
+        assert_cleans_to(
+            "https://www.instagram.com/p/DYSp4qXn-UD/?utm_source=ig_web_copy_link",
+            &s,
+            "https://vxinstagram.com/p/DYSp4qXn-UD/",
+        );
+        assert_cleans_to(
+            "https://www.instagram.com/p/DYSp4qXn-UD?foo=bar",
+            &s,
+            "https://vxinstagram.com/p/DYSp4qXn-UD",
         );
     }
 
